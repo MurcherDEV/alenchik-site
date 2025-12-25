@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>С Новым Годом!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #1a2a6c, #b21f1f, #fdbb2d);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            font-family: 'Montserrat', sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border-radius: 24px;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUp 1.2s ease forwards;
+            position: relative;
+            /* Убрали overflow: hidden, чтобы кот мог вылезать за края */
+        }
+
+        @keyframes slideUp {
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .cursive { font-family: 'Pacifico', cursive; }
+
+        .snowflake {
+            position: fixed;
+            top: -10vh;
+            color: white;
+            user-select: none;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes fallAndSpin {
+            0% { transform: translateY(0) translateX(0) rotate(0deg); }
+            100% { transform: translateY(110vh) translateX(50px) rotate(360deg); }
+        }
+
+        /* Кот в углу */
+        .cat-peeking {
+            position: absolute;
+            bottom: -25px; /* Немного подправил позицию */
+            right: -35px;
+            width: 180px;
+            z-index: 50;
+            pointer-events: none;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+            transition: all 0.5s ease;
+            opacity: 0; /* Скрыт до загрузки */
+            transform: scale(0.8);
+        }
+
+        .cat-loaded {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        @media (max-width: 640px) {
+            .cat-peeking {
+                width: 130px;
+                right: -10px;
+                bottom: -15px;
+            }
+        }
+
+        /* Маленький индикатор статуса для отладки в углу */
+        #debug-status {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.5);
+            font-family: monospace;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="snow-container"></div>
+    <div id="debug-status">Инициализация...</div>
+
+    <main class="relative z-10 w-full max-w-lg px-6">
+        <div class="glass-card p-8 md:p-12 text-white">
+            
+            <h1 id="card-title" class="cursive text-3xl md:text-5xl mb-6 text-center drop-shadow-lg text-yellow-100">
+                Загрузка...
+            </h1>
+            
+            <p id="card-text" class="text-base md:text-xl leading-relaxed mb-16 font-light opacity-95 text-center">
+                Загрузка...
+            </p>
+
+            <div class="text-right border-t border-white/20 pt-6">
+                <p id="footer-note" class="cursive text-2xl md:text-3xl text-yellow-200">
+                    Подпись
+                </p>
+            </div>
+
+            <!-- Кот -->
+            <img id="cat-img" src="" alt="Кот" class="cat-peeking" style="opacity: 0.6;">
+        </div>
+    </main>
+
+    <script>
+        const cardConfig = {
+            catImageUrl: "img/kitty.png", 
+            title: "С Новым 2026!",
+            message: "Пусть этот год будет полон тепла, уюта и пушистых моментов. Желаю, чтобы все мечты сбывались, а каждый день приносил только радость!",
+            footer: "Твой Дед Мороз"
+        };
+
+        const debug = document.getElementById('debug-status');
+
+        function initCard() {
+            const imgElement = document.getElementById('cat-img');
+            
+            // Обработка загрузки кота
+            imgElement.onload = function() {
+                imgElement.classList.add('cat-loaded');
+                debug.innerText = "";
+            };
+
+            imgElement.onerror = function() {
+                debug.innerText = "" + imgElement.src;
+                debug.style.color = "#ff4444";
+            };
+
+            if (cardConfig.catImageUrl) {
+                imgElement.src = cardConfig.catImageUrl;
+            }
+
+            document.getElementById('card-title').innerText = cardConfig.title;
+            document.getElementById('card-text').innerText = cardConfig.message;
+            document.getElementById('footer-note').innerText = cardConfig.footer;
+        }
+
+        function createSnowflake() {
+            const container = document.getElementById('snow-container');
+            if (!container) return;
+            
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            const icons = ['❄', '❅', '❆'];
+            snowflake.innerText = icons[Math.floor(Math.random() * icons.length)];
+            const size = Math.random() * 15 + 10;
+            const duration = Math.random() * 5 + 5;
+            snowflake.style.left = Math.random() * 100 + 'vw';
+            snowflake.style.fontSize = size + 'px';
+            snowflake.style.opacity = Math.random() * 0.7 + 0.3;
+            snowflake.style.animation = `fallAndSpin ${duration}s linear forwards`;
+            container.appendChild(snowflake);
+            setTimeout(() => snowflake.remove(), duration * 1000);
+        }
+
+        window.onload = () => {
+            initCard();
+            setInterval(createSnowflake, 150);
+        };
+    </script>
+</body>
+</html>
