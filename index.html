@@ -37,7 +37,6 @@
             opacity: 0;
             animation: slideUp 1.2s ease forwards;
             position: relative;
-            /* Убрали overflow: hidden, чтобы кот мог вылезать за края */
         }
 
         @keyframes slideUp {
@@ -60,40 +59,37 @@
             100% { transform: translateY(110vh) translateX(50px) rotate(360deg); }
         }
 
-        /* Кот в углу */
+        /* Кот зафиксирован в углу ЭКРАНА */
         .cat-peeking {
-            position: absolute;
-            bottom: -25px; /* Немного подправил позицию */
-            right: -35px;
-            width: 180px;
-            z-index: 50;
+            position: fixed; /* Фиксируем относительно окна */
+            bottom: 0;      /* Прижимаем к низу */
+            right: 0;       /* Прижимаем к правому краю */
+            width: 220px;   /* Сделал чуть крупнее для угла экрана */
+            z-index: 100;   /* Поверх всего */
             pointer-events: none;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
-            transition: all 0.5s ease;
-            opacity: 0; /* Скрыт до загрузки */
-            transform: scale(0.8);
+            filter: drop-shadow(0 -5px 15px rgba(0,0,0,0.4));
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            transform: translateY(100%); /* Прячем за нижним краем до загрузки */
         }
 
         .cat-loaded {
             opacity: 1;
-            transform: scale(1);
+            transform: translateY(0); /* Вылезает снизу */
         }
         
         @media (max-width: 640px) {
             .cat-peeking {
-                width: 130px;
-                right: -10px;
-                bottom: -15px;
+                width: 150px;
             }
         }
 
-        /* Маленький индикатор статуса для отладки в углу */
         #debug-status {
             position: fixed;
             bottom: 10px;
             left: 10px;
             font-size: 10px;
-            color: rgba(255,255,255,0.5);
+            color: rgba(255,255,255,0.3);
             font-family: monospace;
             z-index: 100;
         }
@@ -102,7 +98,10 @@
 <body>
 
     <div id="snow-container"></div>
-    <div id="debug-status">Инициализация...</div>
+    <div id="debug-status"></div>
+
+    <!-- Кот (вынесен за пределы main для фиксации на экране) -->
+    <img id="cat-img" src="" alt="Кот" class="cat-peeking" style="opacity: 0.7;">
 
     <main class="relative z-10 w-full max-w-lg px-6">
         <div class="glass-card p-8 md:p-12 text-white">
@@ -120,18 +119,15 @@
                     Подпись
                 </p>
             </div>
-
-            <!-- Кот -->
-            <img id="cat-img" src="" alt="Кот" class="cat-peeking" style="opacity: 0.6;">
         </div>
     </main>
 
     <script>
         const cardConfig = {
             catImageUrl: "img/kitty.png", 
-            title: "С Новым 2026!",
-            message: "Пусть этот год будет полон тепла, уюта и пушистых моментов. Желаю, чтобы все мечты сбывались, а каждый день приносил только радость!",
-            footer: "Твой Дед Мороз"
+            title: "С Новым Годом!",
+            message: "Привет, Алёнчик! Это твой Тайный Санта. С наступающим! Желаю тебе в новом году достать все звёзды с неба — так же легко, как и те, что теперь будут на потолке в твоей комнате. Пусть эта частичка космоса, до которой можно дотянуться рукой, добавляет уюта по вечерам.",
+            footer: "Твой тайный санта"
         };
 
         const debug = document.getElementById('debug-status');
@@ -139,15 +135,13 @@
         function initCard() {
             const imgElement = document.getElementById('cat-img');
             
-            // Обработка загрузки кота
             imgElement.onload = function() {
                 imgElement.classList.add('cat-loaded');
                 debug.innerText = "";
             };
 
             imgElement.onerror = function() {
-                debug.innerText = "" + imgElement.src;
-                debug.style.color = "#ff4444";
+                debug.innerText = "Error loading: " + imgElement.src;
             };
 
             if (cardConfig.catImageUrl) {
